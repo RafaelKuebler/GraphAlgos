@@ -4,14 +4,22 @@ from abc import ABCMeta, abstractmethod
 class Graph:
     __metaclass__ = ABCMeta
 
-    @abstractproperty
-    def nodes(self):
-        pass
-
-    @abstractproperty
-    def edges(self):
+    @abstractmethod
+    def add_edge_to_neighbors(self, node):
         pass
 
     @abstractmethod
-    def get_connected_nodes(self, node):
+    def remove_edge(self, node1, node2):
         pass
+
+    @abstractmethod
+    def mark_as_obstacle(self, node):
+        pass
+
+    @abstractmethod
+    def is_obstacle(self, node):
+        return False
+
+    @abstractmethod
+    def get_connected_nodes(self, node):
+        return []
