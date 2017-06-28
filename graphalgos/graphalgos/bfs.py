@@ -3,20 +3,23 @@ from collections import deque
 
 
 class BFS(GraphAlgo):
-    def __init__(self, graph, start_pos, target_pos):
+    def __init__(self, graph, start=None, target=None):
         self.graph = graph
-        self.start_pos = start_pos
-        self.target_pos = target_pos
-        self.queue = deque([self.start_pos])
+        self.start = start
+        self.target = target
+        self.queue = deque()
         self.visited = []
         self.target_not_found = True
+        self.running = False
 
     def step(self):
+        self.queue.append(self.start)
+
         while self.queue and self.target_not_found:
             current = self.queue.popleft()
             # print("current: {}".format(current))
             for neighbor in self.graph.get_connected_nodes(current):
-                if neighbor == self.target_pos:
+                if neighbor == self.target:
                     print("found position!")
                     self.target_not_found = False
                     break
@@ -25,3 +28,7 @@ class BFS(GraphAlgo):
                     self.queue.append(neighbor)
                     yield neighbor
         yield
+
+    def can_execute(self):
+        print("Can execute!")
+        return (self.start is not None) and (self.target is not None) and self.running

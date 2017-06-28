@@ -2,21 +2,24 @@ from graphalgo import GraphAlgo
 
 
 class DFS(GraphAlgo):
-    def __init__(self, graph, start_pos, target_pos):
+    def __init__(self, graph, start=None, target=None):
         self.graph = graph
-        self.start_pos = start_pos
-        self.target_pos = target_pos
-        self.stack = [self.start_pos]
+        self.start = start
+        self.target = target
+        self.stack = []
         self.visited = []
         self.target_not_found = True
+        self.running = False
 
     def step(self):
+        self.stack.append(self.start)
+
         while self.stack and self.target_not_found:
             current = self.stack.pop()
             if current not in self.visited:
                 self.visited.append(current)
                 for neighbor in self.graph.get_connected_nodes(current):
-                    if neighbor == self.target_pos:
+                    if neighbor == self.target:
                         print("found position!")
                         self.target_not_found = False
                         break
@@ -24,3 +27,6 @@ class DFS(GraphAlgo):
                         self.stack.append(neighbor)
                         yield neighbor
         yield
+
+    def can_execute(self):
+        return (self.start is not None) and (self.target is not None) and self.running

@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 
 class GraphAlgo:
@@ -7,3 +7,7 @@ class GraphAlgo:
     @abstractmethod
     def step(self):
         yield
+
+    @abstractmethod
+    def can_execute(self):
+        return False

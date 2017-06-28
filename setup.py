@@ -5,9 +5,9 @@ setup(
     version='0.1dev',
     packages=['graphalgos',],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
-            "pygame == 1.9.2",
-            "Pygcurse == 0.10.3",
+            "pygame >= 1.9.2",
+            "Pygcurse >= 0.10.3",
     ],
 )
