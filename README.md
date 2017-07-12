@@ -14,6 +14,7 @@
 First click will create a starting point.
 Second click will create a target point.
 Clicking anywhere afterwards will create an obstacle (cannot be traversed).
+Press Enter to start the graph search.
 
 ## Packages
 [Pygcurse](http://inventwithpython.com/pygcurse/) - Curses emulation library.
