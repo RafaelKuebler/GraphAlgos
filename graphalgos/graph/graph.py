@@ -1,9 +1,7 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 
-class Graph:
-    __metaclass__ = ABCMeta
-
+class Graph(ABC):
     @abstractmethod
     def add_edge_to_neighbors(self, node):
         pass

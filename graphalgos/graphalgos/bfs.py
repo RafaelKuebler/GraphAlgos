@@ -1,4 +1,4 @@
-from graphalgo import GraphAlgo
+from .graphalgo import GraphAlgo
 from collections import deque
 
 

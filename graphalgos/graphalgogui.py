@@ -2,9 +2,9 @@ import pygame
 import pygcurse
 from pygame.locals import *
 from win32api import GetSystemMetrics
-from graphalgos.graph.twodmap import TwoDMap
-from graphalgos.graphalgos.bfs import BFS
-from graphalgos.graphalgos.dfs import DFS
+from graph.twodmap import TwoDMap
+from graphalgos.bfs import BFS
+from graphalgos.dfs import DFS
 
 
 class GraphAlgoGUI:
@@ -27,7 +27,7 @@ class GraphAlgoGUI:
         self._obstacle_char = '#'
         self._start_char = 'A'
         self._target_char = 'B'
-        self._visited_char = '+'
+        self._visited_char = '.'
 
     def create_gui(self):
         self._window = pygcurse.PygcurseWindow(self._size_x, self._size_y, "GraphAlgo", fullscreen=self._fullscreen)
@@ -77,7 +77,7 @@ class GraphAlgoGUI:
         self._graph.mark_as_obstacle(cell)
 
     def mark_as_visited(self, cell):
-        self._window.putchar(self._obstacle_char, cell[0], cell[1])
+        self._window.putchar(self._visited_char, cell[0], cell[1])
         self._graph.mark_as_obstacle(cell)
 
     def place_obstacle(self, cell):
