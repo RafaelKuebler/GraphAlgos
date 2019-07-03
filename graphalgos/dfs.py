@@ -9,7 +9,6 @@ class DFS(GraphAlgo):
         self.stack = []
         self.visited = []
         self.target_not_found = True
-        self.running = False
 
     def step(self):
         self.stack.append(self.start)
@@ -23,10 +22,10 @@ class DFS(GraphAlgo):
                         print("found position!")
                         self.target_not_found = False
                         break
-                    if neighbor not in self.visited and not self.graph.is_obstacle(neighbor):
+                    if neighbor not in self.visited:
                         self.stack.append(neighbor)
                         yield neighbor
         yield
 
     def can_execute(self):
-        return (self.start is not None) and (self.target is not None) and self.running
+        return self.start is not None and self.target is not None

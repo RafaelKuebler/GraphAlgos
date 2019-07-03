@@ -10,7 +10,6 @@ class BFS(GraphAlgo):
         self.queue = deque()
         self.visited = []
         self.target_not_found = True
-        self.running = False
 
     def step(self):
         self.queue.append(self.start)
@@ -23,12 +22,11 @@ class BFS(GraphAlgo):
                     print("found position!")
                     self.target_not_found = False
                     break
-                if neighbor not in self.visited and not self.graph.is_obstacle(neighbor):
+                if neighbor not in self.visited:
                     self.visited.append(neighbor)
                     self.queue.append(neighbor)
                     yield neighbor
         yield
 
     def can_execute(self):
-        print("Can execute!")
-        return (self.start is not None) and (self.target is not None) and self.running
+        return self.start is not None and self.target is not None

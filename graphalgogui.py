@@ -3,12 +3,10 @@ import pygcurse
 from pygame.locals import *
 from win32api import GetSystemMetrics
 from graph.twodmap import TwoDMap
-from graphalgos.bfs import BFS
-from graphalgos.dfs import DFS
 
 
 class GraphAlgoGUI:
-    def __init__(self, size_x=50, size_y=30, fullscreen=False):
+    def __init__(self, graphalgo, size_x=50, size_y=30):
         cell_width, cell_height = self._test_cell_size()
 
         if size_x == "max":
@@ -20,27 +18,17 @@ class GraphAlgoGUI:
         else:
             self._size_y = size_y
 
-        self._fullscreen = fullscreen
+        self._graph = TwoDMap(self._size_x, self._size_y)
+        self._graphalgo = graphalgo(self._graph)
+
         self._window = None
-        self._graph = None
-        self._graphalgo = None
         self._obstacle_char = '#'
         self._start_char = 'A'
         self._target_char = 'B'
         self._visited_char = '.'
 
-    def create_gui(self):
-        self._window = pygcurse.PygcurseWindow(self._size_x, self._size_y, "GraphAlgo", fullscreen=self._fullscreen)
-
-    def set_graph_and_algo(self, graph, graphalgo):
-        self._graph = {
-            'twodmap': TwoDMap(self._size_x, self._size_y)
-        }[graph]
-
-        self._graphalgo = {
-            'bfs': BFS(self._graph),
-            'dfs': DFS(self._graph)
-        }[graphalgo]
+    def create_gui(self, fullscreen=False):
+        self._window = pygcurse.PygcurseWindow(self._size_x, self._size_y, "GraphAlgo", fullscreen=fullscreen)
 
     def set_chars(self, start, target, obstacle, visited):
         self._start_char = start
@@ -99,6 +87,9 @@ class GraphAlgoGUI:
                 if event.type == KEYDOWN and event.key == K_RETURN:
                     self._graphalgo.running = True
                     step_generator = self._graphalgo.step()
+                if event.type == KEYDOWN and event.key == K_RETURN:
+                    self._graphalgo.running = True
+                    step_generator = self._graphalgo.step()
                 if event.type == MOUSEBUTTONDOWN:
                     mouse_down = True
                     self.click_at(self._window.getcoordinatesatpixel(event.pos))
@@ -107,7 +98,7 @@ class GraphAlgoGUI:
                 elif mouse_down:
                     self.place_obstacle(self._window.getcoordinatesatpixel(event.pos))
 
-            if self._graphalgo.can_execute:
+            if self._graphalgo.can_execute():
                 try:
                     visited = next(step_generator)
                     if self._graphalgo.start != visited and self._graphalgo.target != visited:

@@ -39,4 +39,4 @@ class TwoDMap(Graph):
         return node in self.obstacles
 
     def get_connected_nodes(self, node):
-        return self._edges[node]
+        return [node for node in self._edges[node] if not self.is_obstacle(node)]
