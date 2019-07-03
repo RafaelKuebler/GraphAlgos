@@ -8,24 +8,17 @@ class DFS(GraphAlgo):
         self.target = target
         self.stack = []
         self.visited = []
-        self.target_not_found = True
 
     def step(self):
         self.stack.append(self.start)
 
-        while self.stack and self.target_not_found:
+        while self.stack:
             current = self.stack.pop()
             if current not in self.visited:
                 self.visited.append(current)
                 for neighbor in self.graph.get_connected_nodes(current):
                     if neighbor == self.target:
-                        print("found position!")
-                        self.target_not_found = False
-                        break
+                        yield
                     if neighbor not in self.visited:
                         self.stack.append(neighbor)
                         yield neighbor
-        yield
-
-    def can_execute(self):
-        return self.start is not None and self.target is not None

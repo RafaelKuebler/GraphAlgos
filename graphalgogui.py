@@ -5,6 +5,99 @@ from win32api import GetSystemMetrics
 from graph.twodmap import TwoDMap
 
 
+class GuiState(object):
+    def __init__(self, gui):
+        self.gui = gui
+
+    def update(self, events):
+        for event in events:
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                exit(0)
+
+
+class SetStartState(GuiState):
+    def __init__(self, gui):
+        super(SetStartState, self).__init__(gui)
+
+    def update(self, events):
+        super(SetStartState, self).update(events)
+
+        for event in events:
+            if event.type == MOUSEBUTTONDOWN:
+                cell = self.gui.getcoordinatesatpixel(event.pos)
+                self.gui.mark_as_start(cell)
+                return SetTargetState(self.gui)
+        return self
+
+
+class SetTargetState(GuiState):
+    def __init__(self, gui):
+        super(SetTargetState, self).__init__(gui)
+
+    def update(self, events):
+        super(SetTargetState, self).update(events)
+
+        for event in events:
+            if event.type == MOUSEBUTTONDOWN:
+                cell = self.gui.getcoordinatesatpixel(event.pos)
+                self.gui.mark_as_target(cell)
+                return SetObstaclesState(self.gui)
+        return self
+
+
+class SetObstaclesState(GuiState):
+    def __init__(self, gui):
+        super(SetObstaclesState, self).__init__(gui)
+        self.mouse_down = False
+
+    def update(self, events):
+        super(SetObstaclesState, self).update(events)
+
+        for event in events:
+            if event.type == MOUSEBUTTONDOWN:
+                self.mouse_down = True
+                cell = self.gui.getcoordinatesatpixel(event.pos)
+                self.gui.place_obstacle(cell)
+            elif event.type == MOUSEBUTTONUP:
+                self.mouse_down = False
+            elif event.type == KEYDOWN and event.key == K_RETURN:
+                return RunAlgoState(self.gui)
+            elif self.mouse_down:
+                cell = self.gui.getcoordinatesatpixel(event.pos)
+                self.gui.place_obstacle(cell)
+        return self
+
+
+class RunAlgoState(GuiState):
+    def __init__(self, gui):
+        super(RunAlgoState, self).__init__(gui)
+        self.step_gen = self.gui.step()
+
+    def update(self, events):
+        super(RunAlgoState, self).update(events)
+        visited = next(self.step_gen)
+        if visited is None:
+            return IdleState(self.gui)
+
+        self.gui.mark_as_visited(visited)
+        return self
+
+
+class IdleState(GuiState):
+    def __init__(self, gui):
+        super(IdleState, self).__init__(gui)
+
+    def update(self, events):
+        super(IdleState, self).update(events)
+
+        for event in events:
+            if event.type == KEYDOWN and event.key == K_RETURN or event.type == MOUSEBUTTONDOWN:
+                self.gui.reset()
+                return SetStartState(self.gui)
+        return self
+
+
 class GraphAlgoGUI:
     def __init__(self, graphalgo, size_x=50, size_y=30):
         cell_width, cell_height = self._test_cell_size()
@@ -19,13 +112,15 @@ class GraphAlgoGUI:
             self._size_y = size_y
 
         self._graph = TwoDMap(self._size_x, self._size_y)
-        self._graphalgo = graphalgo(self._graph)
+        self._algoconstr = graphalgo
+        self._graphalgo = self._algoconstr(self._graph)
 
         self._window = None
         self._obstacle_char = '#'
         self._start_char = 'A'
         self._target_char = 'B'
         self._visited_char = '.'
+        self.state = SetStartState(self)
 
     def create_gui(self, fullscreen=False):
         self._window = pygcurse.PygcurseWindow(self._size_x, self._size_y, "GraphAlgo", fullscreen=fullscreen)
@@ -44,13 +139,16 @@ class GraphAlgoGUI:
         pygame.quit()
         return width, height
 
-    def click_at(self, cell):
-        if self._graphalgo.start is None:
-            print("saved starting cell")
-            self.mark_as_start(cell)
-        elif self._graphalgo.target is None:
-            print("saved target cell")
-            self.mark_as_target(cell)
+    def step(self):
+        return self._graphalgo.step()
+
+    def reset(self):
+        self._window.setscreencolors(None, 'black', clear=True)
+        self._graph = TwoDMap(self._size_x, self._size_y)
+        self._graphalgo = self._algoconstr(self._graph)
+
+    def getcoordinatesatpixel(self, pos):
+        return self._window.getcoordinatesatpixel(pos)
 
     def mark_as_start(self, cell):
         self._graphalgo.start = cell
@@ -69,39 +167,12 @@ class GraphAlgoGUI:
         self._graph.mark_as_obstacle(cell)
 
     def place_obstacle(self, cell):
-        if self._graphalgo.start != cell and self._graphalgo.target != cell:
+        if cell != self._graphalgo.start and cell != self._graphalgo.target:
             self.mark_as_obstacle(cell)
 
     def start(self):
         self._mainloop()
 
     def _mainloop(self):
-        mouse_down = False
-        step_generator = None
-
         while True:
-            for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                    pygame.quit()
-                    return
-                if event.type == KEYDOWN and event.key == K_RETURN:
-                    self._graphalgo.running = True
-                    step_generator = self._graphalgo.step()
-                if event.type == KEYDOWN and event.key == K_RETURN:
-                    self._graphalgo.running = True
-                    step_generator = self._graphalgo.step()
-                if event.type == MOUSEBUTTONDOWN:
-                    mouse_down = True
-                    self.click_at(self._window.getcoordinatesatpixel(event.pos))
-                elif event.type == MOUSEBUTTONUP:
-                    mouse_down = False
-                elif mouse_down:
-                    self.place_obstacle(self._window.getcoordinatesatpixel(event.pos))
-
-            if self._graphalgo.can_execute():
-                try:
-                    visited = next(step_generator)
-                    if self._graphalgo.start != visited and self._graphalgo.target != visited:
-                        self.mark_as_visited(visited)
-                except (StopIteration, TypeError):
-                    pass
+            self.state = self.state.update(pygame.event.get())

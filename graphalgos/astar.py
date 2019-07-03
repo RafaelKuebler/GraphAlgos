@@ -23,7 +23,6 @@ class AStar(GraphAlgo):
         self.target = target
         self.queue = PriorityQueue()
         self.visited = []
-        self.target_not_found = True
 
     @staticmethod
     def heuristic(start, target):
@@ -38,16 +37,13 @@ class AStar(GraphAlgo):
         while not self.queue.empty():
             current = self.queue.get()
 
-            if current == self.target:
-                break
-
             for neighbor in self.graph.get_connected_nodes(current):
+                if neighbor == self.target:
+                    yield
+
                 new_cost = cost_so_far[current] + 1
                 if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                     cost_so_far[neighbor] = new_cost
                     priority = new_cost + self.heuristic(self.target, neighbor)
                     self.queue.put(neighbor, priority)
                     yield neighbor
-
-    def can_execute(self):
-        return self.start is not None and self.target is not None
