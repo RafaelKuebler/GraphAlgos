@@ -18,11 +18,8 @@ class PriorityQueue:
 
 class AStar(GraphAlgo):
     def __init__(self, graph, start=None, target=None):
-        self.graph = graph
-        self.start = start
-        self.target = target
+        super(AStar, self).__init__(graph, start, target)
         self.queue = PriorityQueue()
-        self.visited = []
 
     @staticmethod
     def heuristic(start, target):
@@ -32,18 +29,21 @@ class AStar(GraphAlgo):
 
     def step(self):
         self.queue.put(self.start, 0)
-        cost_so_far = {self.start: 0}
+        self.cost_so_far[self.start] = 0
 
         while not self.queue.empty():
             current = self.queue.get()
 
             for neighbor in self.graph.get_connected_nodes(current):
                 if neighbor == self.target:
+                    self.parent[self.target] = current
                     yield
 
-                new_cost = cost_so_far[current] + 1
-                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                    cost_so_far[neighbor] = new_cost
+                new_cost = self.cost_so_far[current] + 1
+                if neighbor not in self.cost_so_far or new_cost < self.cost_so_far[neighbor]:
+                    self.cost_so_far[neighbor] = new_cost
                     priority = new_cost + self.heuristic(self.target, neighbor)
                     self.queue.put(neighbor, priority)
-                    yield neighbor
+                    self.parent[neighbor] = current
+                    yield (neighbor, new_cost)
+        yield
