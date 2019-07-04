@@ -1,11 +1,12 @@
 # GraphAlgos
 **GraphAlgos** is a small python application that provides a framework for visualizing graph search algorithms using curses (pygcurse library).
 
-<img alt="Recording of BFS" src="https://user-images.githubusercontent.com/9216979/45760810-32ff2e00-bc2b-11e8-909c-fa84f0321958.gif" width="500">
+<img alt="Recording of A*" src="https://user-images.githubusercontent.com/9216979/60671655-e01dfc80-9e73-11e9-8be7-7ac5507aef8d.gif" width="500">
 
 ## Implemented algorithms
 * BFS
 * DFS
+* A*
 
 ## (Recommended) Setup
 The dependencies are only installed in the venv folder, so once you do not need them anymore it can safely be deleted.
@@ -27,7 +28,7 @@ pip install -r requirements.txt
 
 4. Start example:
 ```
-python graphalgos/example.py
+python example.py
 ```
 
 5. The virtual environment can be deactivated with:
